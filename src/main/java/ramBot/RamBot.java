@@ -19,13 +19,13 @@ import sx.blah.discord.util.RateLimitException;
 
 public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	
-	NaturalLanguageModule nAModule;
+	OldNaturalLanguageModule nAModule;
 
 	public RamBot(IDiscordClient discordClient) {
 		super(discordClient);
 		EventDispatcher dispatcher = discordClient.getDispatcher(); // Gets the client's event dispatcher
 		dispatcher.registerListener(this); // Registers this bot as an event listener
-		nAModule = new NaturalLanguageModule();
+		nAModule = new OldNaturalLanguageModule();
 	}
 
 	/**
