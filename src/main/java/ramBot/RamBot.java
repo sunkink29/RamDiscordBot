@@ -20,6 +20,10 @@ import sx.blah.discord.util.RateLimitException;
 public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	
 	OldNaturalLanguageModule nAModule;
+	
+	public static void main(String[] args) {
+		BaseBot.main(args);
+	}
 
 	public RamBot(IDiscordClient discordClient) {
 		super(discordClient);
