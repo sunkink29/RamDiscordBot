@@ -51,7 +51,6 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 			System.out.println(message.getAuthor().getName()+ " : " + message.getContent());
 			if (sunkink29 == null)
 				sunkink29 = client.getUserByID("194936758696148992");
-			System.out.println(sunkink29);
 			if (message.getContent().contains("!getGuild") && message.getAuthor().equals(sunkink29)) {
 				List<IGuild> guilds = client.getGuilds();
 				String output = "";
