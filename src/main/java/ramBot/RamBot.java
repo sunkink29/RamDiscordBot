@@ -67,7 +67,7 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 					sendMessage(channel, output.get(i));
 				}
 				
-			} else if (message.getContent().contains("!logout") && (message.getAuthor().equals(sunkink29)) || message.getAuthor().equals(botManager)) {
+			} else if (message.getContent().contains("logout") && (message.getAuthor().equals(sunkink29)) || message.getAuthor().equals(botManager)) {
 				logout();
 			} else {
 				sendMessage(channel, nAModule.getResponse(message.getContent()));
