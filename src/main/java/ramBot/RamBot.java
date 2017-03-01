@@ -46,7 +46,7 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		IMessage message = event.getMessage(); // Gets the message from the event object NOTE: This is not the content of the message, but the object itself
 		IChannel channel = message.getChannel(); // Gets the channel in which this message was sent.
 		if (message.getMentions().contains(client.getOurUser())) {
-			System.out.println(message.getAuthor().getName());
+			System.out.println(message.getAuthor().getName()+ " : " + message.getContent());
 			if (message.getContent().contains("getGuild") && message.getAuthor().equals(sunkink29)) {
 				List<IGuild> guilds = client.getGuilds();
 				String output = "";
