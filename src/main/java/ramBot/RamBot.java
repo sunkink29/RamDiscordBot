@@ -1,8 +1,10 @@
 package ramBot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nLM.NaturalLanguageModule;
+import nLM.NaturalLanguageParser;
 import nLM.OldNaturalLanguageModule;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
@@ -31,10 +33,10 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 
 	public RamBot(IDiscordClient discordClient) {
 		super(discordClient);
-		ReadyEventListener rEventListener = new ReadyEventListener();
+//		ReadyEventListener rEventListener = new ReadyEventListener();
 		EventDispatcher dispatcher = discordClient.getDispatcher(); // Gets the client's event dispatcher
 		dispatcher.registerListener(this); // Registers this bot as an event listener
-		dispatcher.registerListener(rEventListener);
+//		dispatcher.registerListener(rEventListener);
 		nAModule = new OldNaturalLanguageModule();
 	}
 
@@ -47,14 +49,26 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		IChannel channel = message.getChannel(); // Gets the channel in which this message was sent.
 		if (message.getMentions().contains(client.getOurUser())) {
 			System.out.println(message.getAuthor().getName()+ " : " + message.getContent());
-			if (message.getContent().contains("getGuild") && message.getAuthor().equals(sunkink29)) {
+			if (sunkink29 == null)
+				sunkink29 = client.getUserByID("194936758696148992");
+			System.out.println(sunkink29);
+			if (message.getContent().contains("!getGuild") && message.getAuthor().equals(sunkink29)) {
 				List<IGuild> guilds = client.getGuilds();
 				String output = "";
 				for (int i = 0; i < guilds.size(); i++) {
 					output += guilds.get(i).getName()+", ";
 				}
 				sendMessage(channel, output);
-			} else if (message.getContent().contains("logout") && (message.getAuthor().equals(sunkink29)) || message.getAuthor().equals(botManager)) {
+			} else if (message.getContent().toLowerCase().contains("!parser") && message.getAuthor().equals(sunkink29)){
+				String content = message.getContent().toLowerCase();
+				content = content.replace("!parser", "");
+				content = content.replace("<@"+client.getOurUser().getID()+">", "");
+				ArrayList<String> output = NaturalLanguageParser.getResponse(content);
+				for (int i = 0; i < output.size(); i++) {
+					sendMessage(channel, output.get(i));
+				}
+				
+			} else if (message.getContent().contains("!logout") && (message.getAuthor().equals(sunkink29)) || message.getAuthor().equals(botManager)) {
 				logout();
 			} else {
 				sendMessage(channel, nAModule.getResponse(message.getContent()));
