@@ -11,7 +11,7 @@ import sx.blah.discord.util.DiscordException;
  */
 public class BaseBot {
 
-	public static BaseBot INSTANCE; // Singleton instance of the bot.
+	public static RamBot INSTANCE; // Singleton instance of the bot.
 	public IDiscordClient client; // The instance of the discord client.
 
 	public static void main(String[] args) { // Main method
@@ -28,8 +28,8 @@ public class BaseBot {
 	/**
 	 * A custom login() method to handle all of the possible exceptions and set the bot instance.
 	 */
-	public static BaseBot login(String token) {
-		BaseBot bot = null; // Initializing the bot variable
+	public static RamBot login(String token) {
+		RamBot bot = null; // Initializing the bot variable
 
 		ClientBuilder builder = new ClientBuilder(); // Creates a new client builder instance
 		builder.withToken(token); // Sets the bot token for the client
