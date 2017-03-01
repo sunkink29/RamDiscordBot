@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class NaturalLanguageParser {
@@ -15,13 +17,13 @@ public class NaturalLanguageParser {
 				"echo \"the fat cat sat on the rat\" | syntaxnet/demo.sh"
 				};
 	    try {
-	      runProcess(cmd, "/Users/rps/Documents/workspace/RamBot/syntaxnet");
+//	      runProcess(cmd, "/Users/rps/Documents/workspace/RamBot/syntaxnet");
 	    } catch (Exception e) {
 	      e.printStackTrace();
 	    }
 	  }
 	
-	public static ArrayList<String> getResponse(String input) {
+	public ArrayList<String> getResponse(String input) {
 		String[] cmd = {
 				"/bin/sh",
 				"-c",
@@ -35,13 +37,13 @@ public class NaturalLanguageParser {
 		return new ArrayList<String>();
 	}
 	
-	 private static ArrayList<String> printLines(String name, InputStream ins) throws Exception {
+	 private ArrayList<String> printLines(String name, InputStream ins) throws Exception {
 		    String line = null;
 		    ArrayList<String> output = new ArrayList<String>();
 		    BufferedReader in = new BufferedReader(
 		        new InputStreamReader(ins));
 		    while ((line = in.readLine()) != null) {
-		    	if (!(line.charAt(0) == 'W') && !(line.charAt(0) == 'I') && !(line.charAt(0) == 'i')){
+		    	if (!(line.charAt(0) == 'W') && !(line.charAt(0) == 'I')){
 		    		output.add(name + " " + line);
 		    	} else {
 		    		System.out.println(line);
@@ -50,10 +52,13 @@ public class NaturalLanguageParser {
 	    	return output;
 		  }
 
-	  private static ArrayList<String> runProcess(String[] command, String dir) throws Exception {
+	  private ArrayList<String> runProcess(String[] command, String dir) throws Exception {
 		ArrayList<String> output = new ArrayList<String>();
-		File fileDir = new File(dir);
-	    Process pro = Runtime.getRuntime().exec(command,null,fileDir);
+		URL urlDir = getClass().getClassLoader().getResource("syntaxnet/");
+		System.out.println(urlDir);
+		URI uriDir = urlDir.toURI();
+		File fileDir = new File(uriDir);
+	    Process pro = Runtime.getRuntime().exec(command, null, fileDir);
 	    output = printLines(" ", pro.getInputStream());
 	    output.addAll(printLines(command + " stderr:", pro.getErrorStream()));
 	    pro.waitFor();

@@ -3,7 +3,6 @@ package ramBot;
 import java.util.ArrayList;
 import java.util.List;
 
-import nLM.NaturalLanguageModule;
 import nLM.NaturalLanguageParser;
 import nLM.OldNaturalLanguageModule;
 import sx.blah.discord.api.IDiscordClient;
@@ -23,6 +22,7 @@ import sx.blah.discord.util.RateLimitException;
 public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	
 	OldNaturalLanguageModule nAModule;
+	NaturalLanguageParser nLParser;
 	public IUser sunkink29;
 	public IUser botManager;
 	public IChannel sunkink29Dm;
@@ -38,6 +38,7 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		dispatcher.registerListener(this); // Registers this bot as an event listener
 //		dispatcher.registerListener(rEventListener);
 		nAModule = new OldNaturalLanguageModule();
+		nLParser = new NaturalLanguageParser();
 	}
 
 	/**
@@ -58,11 +59,11 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 					output += guilds.get(i).getName()+", ";
 				}
 				sendMessage(channel, output);
-			} else if (message.getContent().toLowerCase().contains("!parser") && message.getAuthor().equals(sunkink29)){
+			} else if (message.getContent().toLowerCase().contains("!parser")){
 				String content = message.getContent().toLowerCase();
 				content = content.replace("!parser", "");
 				content = content.replace("<@"+client.getOurUser().getID()+">", "");
-				ArrayList<String> output = NaturalLanguageParser.getResponse(content);
+				ArrayList<String> output = nLParser.getResponse(content);
 				for (int i = 0; i < output.size(); i++) {
 					sendMessage(channel, output.get(i));
 				}
@@ -96,6 +97,7 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 			} catch (DiscordException e) { // DiscordException thrown. Many possibilities. Use getErrorMessage() to see what went wrong.
 				System.err.print(e.getErrorMessage()); // Print the error message sent by Discord
 				e.printStackTrace();
+				retry = true;
 			} catch (MissingPermissionsException e) { // MissingPermissionsException thrown. The bot doesn't have permission to send the message!
 				System.err.print("Missing permissions for channel!");
 				e.printStackTrace();
