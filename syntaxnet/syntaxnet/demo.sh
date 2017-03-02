@@ -23,7 +23,7 @@
 # To run on a conll formatted file, add the --conll command line argument.
 #
 
-PARSER_EVAL=bazel-bin/syntaxnet/parser_eval
+PARSER_EVAL=bazel/syntaxnet/parser_eval
 MODEL_DIR=syntaxnet/models/parsey_mcparseface
 [[ "$1" == "--conll" ]] && INPUT_FORMAT=stdin-conll || INPUT_FORMAT=stdin
 
@@ -50,7 +50,7 @@ $PARSER_EVAL \
   --slim_model \
   --batch_size=1024 \
   --alsologtostderr \
-  | \
-  bazel-bin/syntaxnet/conll2tree \
-  --task_context=$MODEL_DIR/context.pbtxt \
-  --alsologtostderr
+#  | \
+#  bazel/syntaxnet/conll2tree \
+#  --task_context=$MODEL_DIR/context.pbtxt \
+#  --alsologtostderr
