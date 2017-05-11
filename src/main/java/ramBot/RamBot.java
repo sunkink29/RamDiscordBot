@@ -7,9 +7,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.jar.Attributes.Name;
 
-import nLM.NaturalLanguageModule;
-import nLM.NaturalLanguageParser;
-import nLM.OldNaturalLanguageModule;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.api.events.IListener;
@@ -29,8 +26,6 @@ import sx.blah.discord.util.RateLimitException;
 
 public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	
-	NaturalLanguageModule nLModule;
-	NaturalLanguageParser nLParser;
 	public IUser sunkink29;
 	public IUser botManager;
 	public IChannel sunkink29Dm;
@@ -45,13 +40,8 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 
 	public RamBot(IDiscordClient discordClient) {
 		super(discordClient);
-//		ReadyEventListener rEventListener = new ReadyEventListener();
 		EventDispatcher dispatcher = discordClient.getDispatcher(); // Gets the client's event dispatcher
 		dispatcher.registerListener(this); // Registers this bot as an event listener
-//		dispatcher.registerListener(rEventListener);
-//		nLModule = new NaturalLanguageModule();
-//		nLParser = new NaturalLanguageParser();
-		System.out.println(nLParser);
 		admins.add("194936758696148992");
 		admins.add("285607196245622785");
 		
@@ -118,19 +108,10 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 						break;
 					}
 				}
-			} else if (message.getContent().toLowerCase().contains("!parser")){
-				String content = message.getContent().toLowerCase();
-				content = content.replace("!parser", "");
-				content = content.replace("<@"+client.getOurUser().getID()+">", "");
-				System.out.println(nLParser);
-				ArrayList<String> output = nLParser.getResponse(content);
-				for (int i = 0; i < output.size(); i++) {
-					sendMessage(channel, output.get(i));
-				}
 			} else {
 				String content = message.getContent().toLowerCase();
 				content = content.replace("<@"+client.getOurUser().getID()+">", "");
-				String output = content; //nLModule.getResponse(content);
+				String output = content;
 				sendMessage(channel, output);
 			}
 		}
