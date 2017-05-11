@@ -4,6 +4,7 @@ import java.util.Scanner;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.RateLimitException;
 
 /**
  * This represents a SUPER basic bot (literally all it does is login).
@@ -33,13 +34,28 @@ public class BaseBot {
 
 		ClientBuilder builder = new ClientBuilder(); // Creates a new client builder instance
 		builder.withToken(token); // Sets the bot token for the client
+		IDiscordClient client = null;
 		try {
-			IDiscordClient client = builder.login(); // Builds the IDiscordClient instance and logs it in
+			client = builder.login();
 			bot = new RamBot(client); // Creating the bot instance
 		} catch (DiscordException e) { // Error occurred logging in
 			System.err.println("Error occurred while logging in!");
 			e.printStackTrace();
 		}
+//		boolean retry = true;
+//		while(retry) {
+//			retry = false;
+//			try {
+//				client.login();
+//			} catch (NullPointerException e) {
+//				System.err.println("nullPointer error");
+//				retry = true;
+//			} catch (DiscordException e) {
+//				e.printStackTrace();
+//			} catch (RateLimitException e) {
+//				e.printStackTrace();
+//			}
+//		}
 
 		return bot;
 	}

@@ -1,1 +1,0 @@
-/Users/rps/Downloads/models/syntaxnet/syntaxnet/lexicon_builder_test.py

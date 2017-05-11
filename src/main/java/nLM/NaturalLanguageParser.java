@@ -43,7 +43,7 @@ public class NaturalLanguageParser {
 		    BufferedReader in = new BufferedReader(
 		        new InputStreamReader(ins));
 		    while ((line = in.readLine()) != null) {
-		    	if (!(line.charAt(0) == 'W') && !(line.charAt(0) == 'I')){
+		    	if (!line.isEmpty() && !(line.charAt(0) == 'W') && !(line.charAt(0) == 'I')){
 		    		output.add(name + " " + line);
 		    	} else {
 		    		System.out.println(line);

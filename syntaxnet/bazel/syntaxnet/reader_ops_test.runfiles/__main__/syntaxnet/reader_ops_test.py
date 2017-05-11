@@ -1,1 +1,0 @@
-/Users/rps/Downloads/models/syntaxnet/syntaxnet/reader_ops_test.py

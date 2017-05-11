@@ -1,1 +1,0 @@
-/private/var/tmp/_bazel_rps/f89b9ab234fb36b0b3c2481908dbf016/execroot/syntaxnet/bazel-out/local-opt/bin/external/org_tensorflow/tensorflow/contrib/tfprof/python/tools/tfprof/pywrap_tensorflow_print_model_analysis_lib.py

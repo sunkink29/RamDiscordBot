@@ -1,1 +1,0 @@
-/Users/rps/Downloads/models/syntaxnet/syntaxnet/load_parser_ops.py
