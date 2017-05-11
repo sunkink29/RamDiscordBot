@@ -19,7 +19,7 @@ public class BaseBot {
 		if (args.length < 1) // Needs a bot token provided
 			throw new IllegalArgumentException("This bot needs at least 1 argument!");
 
-		INSTANCE = login(args[0]); // Creates the bot instance and logs it in.
+		INSTANCE = login(args[0],args[1]); // Creates the bot instance and logs it in.
 	}
 
 	public BaseBot(IDiscordClient client) {
@@ -29,7 +29,7 @@ public class BaseBot {
 	/**
 	 * A custom login() method to handle all of the possible exceptions and set the bot instance.
 	 */
-	public static RamBot login(String token) {
+	public static RamBot login(String token, String aiToken) {
 		RamBot bot = null; // Initializing the bot variable
 
 		ClientBuilder builder = new ClientBuilder(); // Creates a new client builder instance
@@ -37,7 +37,8 @@ public class BaseBot {
 		IDiscordClient client = null;
 		try {
 			client = builder.login();
-			bot = new RamBot(client); // Creating the bot instance
+			ApiAiClient aiClient = new ApiAiClient(aiToken);
+			bot = new RamBot(client, aiClient); // Creating the bot instance
 		} catch (DiscordException e) { // Error occurred logging in
 			System.err.println("Error occurred while logging in!");
 			e.printStackTrace();

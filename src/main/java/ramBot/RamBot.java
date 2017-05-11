@@ -5,27 +5,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.jar.Attributes.Name;
 
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.events.EventDispatcher;
-import sx.blah.discord.api.events.IListener;
+import sx.blah.discord.api.*;
+import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.obj.Guild;
-import sx.blah.discord.handle.impl.obj.Message;
-import sx.blah.discord.handle.impl.obj.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MessageBuilder;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
-
+import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.*;
 
 public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	
+	ApiAiClient aiClient;
 	public IUser sunkink29;
 	public IUser botManager;
 	public IChannel sunkink29Dm;
@@ -38,8 +27,9 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		BaseBot.main(args);
 	}
 
-	public RamBot(IDiscordClient discordClient) {
+	public RamBot(IDiscordClient discordClient, ApiAiClient aiClient) {
 		super(discordClient);
+		this.aiClient = aiClient;
 		EventDispatcher dispatcher = discordClient.getDispatcher(); // Gets the client's event dispatcher
 		dispatcher.registerListener(this); // Registers this bot as an event listener
 		admins.add("194936758696148992");
@@ -110,8 +100,14 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 				}
 			} else {
 				String content = message.getContent().toLowerCase();
+				List<String> words = new ArrayList<String>(Arrays.asList(content.split("\\s+")));
+				List<String> words2 = new ArrayList<>(words); 
+				words.stream().filter(word -> word.contains("<@")).forEach(word -> 
+					{int i = words.indexOf(word); words2.remove(word);
+					words2.add(i, client.getUserByID(word.substring(2, word.length()-1)).getName());});
+				content = String.join(" ", words2);
 				content = content.replace("<@"+client.getOurUser().getID()+">", "");
-				String output = content;
+				String output = aiClient.getResponce(content); //content;
 				sendMessage(channel, output);
 			}
 		}
