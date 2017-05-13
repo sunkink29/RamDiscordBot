@@ -20,8 +20,8 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	public IChannel sunkink29Dm;
 	List<String> admins = new ArrayList<String>();
 	private List<String> actionNames = new ArrayList<String>(); 
-	private List<Predicate<IMessage>> actionConditions = new ArrayList<Predicate<IMessage>>();
-	private List<Consumer<IMessage>> actionList = new ArrayList<>();
+	private List<Predicate<Message>> actionConditions = new ArrayList<Predicate<Message>>();
+	private List<Consumer<Message>> actionList = new ArrayList<>();
 	
 	public static void main(String[] args) {
 		BaseBot.main(args);
@@ -35,12 +35,12 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		admins.add("194936758696148992");
 		admins.add("285607196245622785");
 		
-		addAction("help", message -> message.getContent().contains("!help"), 
-				message -> actionNames.forEach(name -> sendMessage(message.getChannel(), name)));
+		addAction("help", message -> message.content.contains("!help"), 
+				message -> actionNames.forEach(name -> sendMessage(message.message.getChannel(), name)));
 		
-		addAction("sendMessage", message -> message.getContent().contains("!sendMessage"),
+		addAction("sendMessage", message -> message.content.contains("!sendMessage"),
 				message -> {
-					List<String> words = new ArrayList<String>(Arrays.asList(message.getContent().split("\\s+")));
+					List<String> words = new ArrayList<String>(Arrays.asList(message.content.split("\\s+")));
 					List<IChannel> channels = new ArrayList<>();
 					List<String> guilds = new ArrayList<>();
 					for (IGuild guild: client.getGuilds()) { guilds.add(guild.getID());}
@@ -63,22 +63,52 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 					for(IChannel channel: channels) { sendMessage(channel, sMessage);}
 				});
 		
-		addAction("addAdmin", message -> message.getContent().contains("!addAdmin"),
-				message -> message.getMentions().stream()
+		addAction("addAdmin", message -> message.content.contains("!addAdmin"),
+				message -> message.message.getMentions().stream()
 				.filter(mentionClient -> mentionClient != client.getOurUser() && !admins.contains(mentionClient.getID()))
 				.forEach(user -> admins.add(user.getID())));
 		
-		addAction("printAdmins", message -> message.getContent().contains("!printAdmins"),
-				message -> admins.forEach(admin -> sendMessage(message.getChannel(), client.getUserByID(admin).getName())));
+		addAction("printAdmins", message -> message.content.contains("!printAdmins"),
+				message -> admins.forEach(admin -> sendMessage(message.message.getChannel(), client.getUserByID(admin).getName())));
 		
-		addAction("getGuild", message -> message.getContent().contains("!getGuild"),
-				message -> client.getGuilds().forEach(guild -> sendMessage(message.getChannel(), guild.getName()+" "+guild.getID())));
+		addAction("getGuild", message -> message.content.contains("!getGuild"),
+				message -> client.getGuilds().forEach(guild -> sendMessage(message.message.getChannel(), guild.getName()+" "+guild.getID())));
 		
-		addAction("getUsers", message -> message.getContent().contains("!getUsers")
-				, message -> client.getUsers().forEach(user -> sendMessage(message.getChannel(), user.getName())));
+		addAction("getUsers", message -> message.content.contains("!getUsers")
+				, message -> client.getUsers().forEach(user -> sendMessage(message.message.getChannel(), user.getName())));
 		
-		addAction("logout", message -> message.getContent().contains("!logout"),
-				message -> {sendMessage(message.getChannel(), "logging out");logout();});
+		addAction("logout", message -> message.content.contains("!logout"),
+				message -> {sendMessage(message.message.getChannel(), "logging out");logout();});
+		addAction("roll", message -> message.content.contains("!roll"),
+				message -> {
+					List<String> words = new ArrayList<String>(Arrays.asList(message.content.split("\\s+")));
+					int commandIndex = 0;
+					for (String word: words) {if (word.equals("!roll")){commandIndex = words.indexOf(word);break;}}
+					int numberOfDice = Integer.parseInt(words.get(commandIndex+1));
+					int numberOfSides = Integer.parseInt(words.get(commandIndex+2).substring(1));
+					List<Integer> diceRolls = new ArrayList<>();
+					for (int i=0;i<numberOfDice;i++) diceRolls.add((int)(Math.random()*numberOfSides+1));
+					String output = "I rolled a ";
+					for (int i=0;i<diceRolls.size();i++) output+= diceRolls.get(i) + (i+1==diceRolls.size()?" ":", ");
+					int total=0;
+					for (int num: diceRolls) total+=num;
+					output += (diceRolls.size()>1?"for a total of "+total:"");
+					sendMessage(message.message.getChannel(), output);
+				;});
+		addAction("flip", message -> message.content.contains("!flip"),
+				message -> {
+					List<String> words = new ArrayList<String>(Arrays.asList(message.content.split("\\s+")));
+					int commandIndex = 0;
+					for (String word: words) {if (word.equals("!flip")){commandIndex = words.indexOf(word);break;}}
+					int numberOfcoins = Integer.parseInt(words.get(commandIndex+1));
+					List<Boolean> coinFlips = new ArrayList<>();
+					for (int i=0;i<numberOfcoins;i++) coinFlips.add((int)(Math.random()*2+1)==1);
+					int total=0;
+					for (boolean coin: coinFlips) total+=coin?1:0;
+					String output = "I flipped " + (numberOfcoins==1?(coinFlips.get(0)?"heads":"tails"):
+						total+" heads and "+(numberOfcoins-total)+" tails");
+					sendMessage(message.message.getChannel(), output);
+				;});
 	}
 
 	/**
@@ -88,17 +118,21 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	public void handle(MessageReceivedEvent event) {
 		IMessage message = event.getMessage(); // Gets the message from the event object NOTE: This is not the content of the message, but the object itself
 		IChannel channel = message.getChannel(); // Gets the channel in which this message was sent.
+		String output = "";
 		if (message.getMentions().contains(client.getOurUser()) || message.getChannel().isPrivate()) {
 			System.out.println(message.getAuthor().getName()+ " : " + message.getContent());
-			
+			boolean commandTriggered = false;
 			if (admins.contains(message.getAuthor().getID()) && message.getContent().contains("!")) {
 				for(int i = 0; i < actionConditions.size(); i++) {
-					if (actionConditions.get(i).test(message)) {
-						actionList.get(i).accept(message);
+					if (actionConditions.get(i).test(new Message(message))) {
+						actionList.get(i).accept(new Message(message));
+						commandTriggered = true;
 						break;
 					}
 				}
-			} else {
+			}
+			
+			if(!commandTriggered) {
 				String content = message.getContent().toLowerCase();
 				List<String> words = new ArrayList<String>(Arrays.asList(content.split("\\s+")));
 				List<String> words2 = new ArrayList<>(words); 
@@ -107,13 +141,25 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 					words2.add(i, client.getUserByID(word.substring(2, word.length()-1)).getName());});
 				content = String.join(" ", words2);
 				content = content.replace("<@"+client.getOurUser().getID()+">", "");
-				String output = aiClient.getResponce(content); //content;
-				sendMessage(channel, output);
+				output = aiClient.getResponce(content);
+				if (output.contains("!")) {
+					for(int i = 0; i < actionConditions.size(); i++) {
+						if (actionConditions.get(i).test(new Message(message, output))) {
+							actionList.get(i).accept(new Message(message, output));
+							commandTriggered = true;
+							break;
+						}
+					}
+				}
+				if (!commandTriggered) {
+					sendMessage(channel, output);
+				}
 			}
+			
 		}
 	}
 	
-	public void addAction(String name, Predicate<IMessage> condition, Consumer<IMessage> action) {
+	public void addAction(String name, Predicate<Message> condition, Consumer<Message> action) {
 		if (!actionNames.contains(name)) {
 			actionNames.add(name);
 			actionConditions.add(condition);
@@ -157,6 +203,18 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 			e.printStackTrace();
 		}
 	}
+}
+
+class Message {
+	public IMessage message;
+	public String content;
 	
+	public Message (IMessage message) {
+		this(message, message.getContent());
+	}
 	
+	public Message (IMessage message, String content) {
+		this.message = message;
+		this.content = content;
+	}
 }
