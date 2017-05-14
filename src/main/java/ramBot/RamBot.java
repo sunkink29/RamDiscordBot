@@ -58,6 +58,10 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 				.filter(mentionClient -> mentionClient != client.getOurUser() && !admins.contains(mentionClient.getID()))
 				.forEach(user -> admins.add(user.getID())));
 		
+		addCommand("removeAdmin", message -> message.message.getMentions().stream()
+				.filter(mentionClient -> mentionClient != client.getOurUser() && !admins.contains(mentionClient.getID()))
+				.forEach(user -> admins.remove(user.getID())));
+		
 		addCommand("printAdmins", message -> admins.forEach(admin ->
 				sendMessage(message.message.getChannel(), client.getUserByID(admin).getName())));
 		
@@ -73,12 +77,16 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 					String[] words = message.args;
 					int numberOfDice = Integer.parseInt(words[0]);
 					int numberOfSides = Integer.parseInt(words[1].substring(1));
-					List<Integer> diceRolls = new ArrayList<>();
-					for (int i=0;i<numberOfDice;i++) diceRolls.add((int)(Math.random()*numberOfSides+1));
-					String output = "I rolled a ";
+					List<Short> diceRolls = new ArrayList<>();
+					for (int i=0;i<numberOfDice;i++) diceRolls.add((short)(Math.random()*numberOfSides+1));
+					String output = "";
+					if (diceRolls.size() < 20) {
+						output = "I rolled a ";
 					for (int i=0;i<diceRolls.size();i++) output+= diceRolls.get(i) + (i+1==diceRolls.size()?" ":", ");
-					int total=0;
-					for (int num: diceRolls) total+=num;
+					}else {
+						output = "I rolled " + diceRolls.size() + " dice ";
+					}
+					int total = diceRolls.parallelStream().mapToInt(die -> die.intValue()).sum();
 					output += (diceRolls.size()>1?"for a total of "+total:"");
 					sendMessage(message.message.getChannel(), output);
 				;});
@@ -86,11 +94,9 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		addCommand("flip", message -> {
 					String[] words = message.args;
 					int numberOfcoins = Integer.parseInt(words[0]);
-					List<Boolean> coinFlips = new ArrayList<>();
-					for (int i=0;i<numberOfcoins;i++) coinFlips.add((int)(Math.random()*2+1)==1);
-					int total=0;
-					for (boolean coin: coinFlips) total+=coin?1:0;
-					String output = "I flipped " + (numberOfcoins==1?(coinFlips.get(0)?"heads":"tails"):
+					int total = 0;
+					for (int i=0;i<numberOfcoins;i++) total+=(int)(Math.random()*2);
+					String output = "I flipped " + (numberOfcoins==1?(total==1?"heads":"tails"):
 						total+" heads and "+(numberOfcoins-total)+" tails");
 					sendMessage(message.message.getChannel(), output);
 				;});
@@ -195,8 +201,6 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 			e.printStackTrace();
 		}
 	}
-	
-	private void getArgsFromCall(){}
 }
 
 class Message {
@@ -231,7 +235,6 @@ class Command{
 		List<String> words = new ArrayList<String>(Arrays.asList(message.content.split("\\s+")));
 		if (words.size() > 0) {
 			while (words.get(0).equals("!"+name)){
-				System.out.println(words.get(0));
 				words.remove(0);
 			}
 		}
