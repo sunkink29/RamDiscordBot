@@ -234,9 +234,10 @@ class Command{
 	public void execute(Message message){
 		List<String> words = new ArrayList<String>(Arrays.asList(message.content.split("\\s+")));
 		if (words.size() > 0) {
-			while (words.get(0).equals("!"+name)){
+			while (!words.get(0).equals("!"+name)){
 				words.remove(0);
 			}
+			words.remove(0);
 		}
 		message.args = words.toArray(message.args);
 		action.accept(message);

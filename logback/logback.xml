@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
+       <!-- do not set your webhook here if you want to commit this file to your VCS, instead look below for an example on how to set it at runtime -->
+       <webhookUri>https://discordapp.com/api/webhooks/313445994756964352/EvCVDIqfCYr2hIoH302W8WR8QZj8VXYmMt0IgWla4yahumolpMx0yiGm_KGjKLLnqO48</webhookUri>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```%ex{full}```</pattern>
+        </layout>
+    </appender>
+
+    <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="DISCORD" />
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <root>
+        <level value="DEBUG" />
+        <appender-ref ref="ASYNC_DISCORD" />
+    </root>
+
+</configuration>
