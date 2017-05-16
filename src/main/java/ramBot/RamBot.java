@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.*;
@@ -32,7 +33,14 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		admins.add("194936758696148992");
 		admins.add("285607196245622785");
 		
-		addCommand("help", message -> commands.forEach(command -> sendMessage(message.message.getChannel(), command.name)));
+		addCommand("help", message ->{
+			String output;
+			if (message.args.length > 0 && message.args[0].equals("nl")) {
+				output = "I can " + commands.stream().filter(command -> !command.hiddenCommand).map(command ->  command.description).collect(Collectors.joining(", "));
+			} else {
+				output = commands.stream().map(command ->  "!"+command.name).collect(Collectors.joining(", "));
+			}
+			sendMessage(message.message.getChannel(), output);});
 		
 		addCommand("sendMessage", message -> {
 					List<String> words = new ArrayList<String>(Arrays.asList(message.content.split("\\s+")));
@@ -73,7 +81,7 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		
 		addCommand("logout", message -> {sendMessage(message.message.getChannel(), "logging out");logout();});
 		
-		addCommand("roll", message -> {
+		addCommand("roll", "roll dice", false, message -> {
 					String[] words = message.args;
 					int numberOfDice = Integer.parseInt(words[0]);
 					int numberOfSides = Integer.parseInt(words[1].substring(1));
@@ -91,7 +99,7 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 					sendMessage(message.message.getChannel(), output);
 				;});
 		
-		addCommand("flip", message -> {
+		addCommand("flip", "flip coins", false, message -> {
 					String[] words = message.args;
 					int numberOfcoins = Integer.parseInt(words[0]);
 					int total = 0;
@@ -151,8 +159,12 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	}
 	
 	public void addCommand(String name, Consumer<Message> action) {
+		addCommand(name, "", true, action);
+	}
+	
+	public void addCommand(String name, String description, boolean hiddenCommand, Consumer<Message> action) {
 		if (commands.stream().filter(command -> command.name == name).count() == 0) {
-			commands.add(new Command(name, action));
+			commands.add(new Command(name, hiddenCommand, description, action));
 		}
 	}
 	
@@ -221,10 +233,14 @@ class Message {
 class Command{
 	private final Consumer<Message> action;
 	public final String name;
+	public final boolean hiddenCommand;
+	public final String description;
 	
-	public Command(String name, Consumer<Message> action) {
+	public Command(String name, boolean hiddenCommand, String description, Consumer<Message> action) {
 		this.action = action;
 		this.name = name;
+		this.hiddenCommand = hiddenCommand;
+		this.description = description;
 	}
 	
 	public boolean checkCondition(Message message){
