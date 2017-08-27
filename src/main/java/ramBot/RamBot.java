@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import sx.blah.discord.api.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.obj.Embed;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 
@@ -20,7 +21,7 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 	public IChannel sunkink29Dm;
 	List<String> admins = new ArrayList<String>();
 	private List<Command> commands = new ArrayList<>();
-	
+
 	public static void main(String[] args) {
 		BaseBot.main(args);
 	}
@@ -118,6 +119,15 @@ public class RamBot extends BaseBot implements IListener<MessageReceivedEvent> {
 		IMessage message = event.getMessage(); // Gets the message from the event object NOTE: This is not the content of the message, but the object itself
 		IChannel channel = message.getChannel(); // Gets the channel in which this message was sent.
 		String output = "";
+		List<IEmbed> embeds = message.getEmbeds();
+		for (IEmbed embed: embeds) {
+			if (embed.getTitle().contains("leveled up")) {
+				message.delete();
+			}
+		}
+		if (message.getContent().contains("leveled up") || message.getContent().contains("advanced to **level")) {
+			message.delete();
+		}
 		if (message.getMentions().contains(client.getOurUser()) || message.getChannel().isPrivate()) {
 			System.out.println(message.getAuthor().getName()+ " : " + message.getContent());
 			boolean commandTriggered = false;
